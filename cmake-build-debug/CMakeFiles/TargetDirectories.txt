@@ -1,0 +1,4 @@
+C:/Users/jwhal/CLionProjects/Johns_Cpp_Chess_AI/cmake-build-debug/CMakeFiles/Johns_Cpp_Chess_AI.dir
+C:/Users/jwhal/CLionProjects/Johns_Cpp_Chess_AI/cmake-build-debug/CMakeFiles/unittests.dir
+C:/Users/jwhal/CLionProjects/Johns_Cpp_Chess_AI/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/jwhal/CLionProjects/Johns_Cpp_Chess_AI/cmake-build-debug/CMakeFiles/rebuild_cache.dir

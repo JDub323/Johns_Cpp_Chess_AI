@@ -1,0 +1,26 @@
+# ninja log v5
+5	1049	7400035101321492	CMakeFiles/Johns_Cpp_Chess_AI.dir/main.cpp.obj	4a57ce8fdddf55c6
+12	641	7398619192082441	CMakeFiles/Johns_Cpp_Chess_AI.dir/Temp.cpp.obj	c343a03a708ecd8e
+37	1933	7400035110163871	CMakeFiles/Johns_Cpp_Chess_AI.dir/Utilities.cpp.obj	c3ea44f0f9229d3e
+5	723	7400040723877213	CMakeFiles/Johns_Cpp_Chess_AI.dir/Position.cpp.obj	12d0c4eedff8d345
+50	1167	7400035102504125	CMakeFiles/Johns_Cpp_Chess_AI.dir/UCIHandler.cpp.obj	9022344cb85ec3a7
+60	357	7400035094400006	CMakeFiles/Johns_Cpp_Chess_AI.dir/Movement.cpp.obj	287a526f79c6b5c3
+665	795	7398619193583512	Johns_Cpp_Chess_AI.exe	6a356e18cd6ccc12
+55	1009	7400035100922559	CMakeFiles/Johns_Cpp_Chess_AI.dir/unittests.cpp.obj	6093b00e8243f767
+1	183	7400050063020695	build.ninja	4f768bd9175df01e
+5	596	7400050861362272	CMakeFiles/Johns_Cpp_Chess_AI.dir/main.cpp.obj	4a57ce8fdddf55c6
+6	1031	7400051816750194	CMakeFiles/Johns_Cpp_Chess_AI.dir/Position.cpp.obj	12d0c4eedff8d345
+15	2144	7400051827892319	CMakeFiles/Johns_Cpp_Chess_AI.dir/Utilities.cpp.obj	c3ea44f0f9229d3e
+7	761	7400053554419073	CMakeFiles/Johns_Cpp_Chess_AI.dir/Position.cpp.obj	12d0c4eedff8d345
+19	881	7400053555615817	CMakeFiles/Johns_Cpp_Chess_AI.dir/UCIHandler.cpp.obj	9022344cb85ec3a7
+14	1581	7400053562613355	CMakeFiles/Johns_Cpp_Chess_AI.dir/Utilities.cpp.obj	c3ea44f0f9229d3e
+1581	1712	7400053563889932	Johns_Cpp_Chess_AI.exe	9eaec7863708b320
+5	610	7400053863546546	CMakeFiles/Johns_Cpp_Chess_AI.dir/unittests.cpp.obj	6093b00e8243f767
+611	741	7400053864814294	Johns_Cpp_Chess_AI.exe	9eaec7863708b320
+5	964	7400073663664837	CMakeFiles/Johns_Cpp_Chess_AI.dir/Position.cpp.obj	12d0c4eedff8d345
+20	1064	7400073664672127	CMakeFiles/Johns_Cpp_Chess_AI.dir/unittests.cpp.obj	6093b00e8243f767
+15	1107	7400073665120936	CMakeFiles/Johns_Cpp_Chess_AI.dir/UCIHandler.cpp.obj	9022344cb85ec3a7
+10	1866	7400073672699553	CMakeFiles/Johns_Cpp_Chess_AI.dir/Utilities.cpp.obj	c3ea44f0f9229d3e
+1866	2020	7400073674197608	Johns_Cpp_Chess_AI.exe	9eaec7863708b320
+5	678	7400076025806360	CMakeFiles/Johns_Cpp_Chess_AI.dir/Position.cpp.obj	12d0c4eedff8d345
+678	820	7400076027193800	Johns_Cpp_Chess_AI.exe	9eaec7863708b320
