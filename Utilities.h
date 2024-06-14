@@ -25,7 +25,10 @@ public:
 
     static unsigned inline long long toBitboard(int in) { return 1ULL << in; };
 
-    static unsigned inline short numberOfTrailingZeroes(unsigned long long bitboard);
+    static unsigned inline short numberOfTrailingZeroes(unsigned long long bitboard) {
+        if (bitboard == 0) return 64; //make sure input is nonzero
+        return __builtin_ctzll(bitboard);
+    };
 
     static unsigned long long makeZobristKey(const unsigned short *chessboard, bool whiteToMove, const bool *castlingRights,
                                           unsigned long long enPassantTargetSquare);

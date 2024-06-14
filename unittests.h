@@ -9,7 +9,10 @@
 class unittests {
 public:
     static void printBitboard(unsigned long long bitboard);
+    static void printDoubleBitboard(unsigned long long top, unsigned long long bottom);
     static void printBoard(unsigned short *chessBoard);
+
+    static void printAllMovement();
 };
 
 

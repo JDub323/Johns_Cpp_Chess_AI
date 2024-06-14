@@ -160,4 +160,6 @@ namespace ChessConstants {
     static inline const ull blackCanCSCheckMask= e8 | g8 | f8;
     static inline const ull blackCanCLPieceMask= b8 | c8 | d8;
     static inline const ull blackCanCLCheckMask= c8 | d8 | e8;
+
+    static inline const ull CASTLING_TARGET_SQUARES [4] = {g1,c1,g8,c8};
 }

@@ -103,11 +103,6 @@ string Utilities::getSquare(short square) {
     return {static_cast<char>(fileChar), static_cast<char>(rankChar), '\0'};
 }
 
-unsigned inline short Utilities::numberOfTrailingZeroes(unsigned long long bitboard) {
-    if (bitboard == 0) return 64; //make sure input is nonzero
-    return __builtin_ctzll(bitboard);
-}
-
 unsigned long long Utilities::makeZobristKey
 (const unsigned short chessboard [], const bool whiteToMove, const bool castlingRights [], const unsigned long long enPassantTargetSquare) {
     unsigned long long ret = 0;

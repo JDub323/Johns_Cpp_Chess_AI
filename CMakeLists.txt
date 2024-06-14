@@ -16,6 +16,7 @@ add_executable(Johns_Cpp_Chess_AI main.cpp
         Movement.cpp
         Movement.h
         unittests.cpp
-        unittests.h)
+        unittests.h
+        Magics.h)
 
 add_executable(unittests unittests.cpp)

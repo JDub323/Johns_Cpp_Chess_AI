@@ -6,20 +6,28 @@
 #include "Utilities.h"
 #include "Position.h"
 #include "ChessConstants.h"
+#include "Movement.h"
 #include <iostream>
 
 int main() {
-    auto* pos = new Position(ChessConstants::startpos);
-    unittests::printBoard(pos->getChessBoard());
-    delete pos;
+    Movement::initializePieceMovement();
+    unittests::printAllMovement();
     return 0;
 }
 
-void unittests::printBitboard(unsigned long long bitboard) {
+void unittests::printBitboard(ull bitboard) {
+    printDoubleBitboard(bitboard,0);
+}
+
+void unittests::printDoubleBitboard(ull top, ull bottom) {
     for (int row = 7; row >=0; row--) {
         for (int col = 0; col<8; col++) {
-            if (bitboard & 1ULL<<(row*8+col)) {
+            ull squareBB = Utilities::toBitboard(row*8+col);
+            if (top & squareBB) {
                 std::cout << 'O';
+            }
+            else if (bottom & squareBB) {
+                std::cout << 'X';
             }
             else {
                 std::cout << ' ';
@@ -46,6 +54,14 @@ void unittests::printBoard(unsigned short *chessBoard) {
             }
         }
         std::cout << std::endl;
+    }
+}
+
+void unittests::printAllMovement() {
+    for (int square = 0; square < 64; square++) {
+        ull bitboard = Movement::getKnightAttacks(square);
+        printDoubleBitboard(bitboard,Utilities::toBitboard(square));
+        std::cout << "--------Square "+std::to_string(square)+"--------" << std::endl;
     }
 }
 
