@@ -7,8 +7,21 @@
 #include "ChessConstants.h"
 #include <bit>
 
+#include "Pieces.h"
+
 using namespace ChessConstants;
+using namespace Pieces;
 using ull = unsigned long long;
+
+// make an alias for my function which will return a function pointer to the correct
+// attacking bitboard based on the piece which is input
+// using MovementFunc = ull(*)(ull, ull, ull);
+// I gave up very quickly on making this clean. I have other things to worry about
+// MovementFunc movementFunc(unsigned char piece) {
+//     switch (piece) {
+//         case WHITE | PAWN: return
+//     }
+// }
 
 void Movement::initializePieceMovement() {
     initializePawnPushesTables();
@@ -24,7 +37,7 @@ void Movement::initializePieceMovement() {
 
 void Movement::initializePawnPushesTables() {
     for (int square = 0; square < 64; square++) {
-        ull squareBB = Utilities::toBitboard(square);
+        const ull squareBB = Utilities::toBitboard(square);
         whitePawnPushesTable[square] = squareBB<<8;
         blackPawnPushesTable[square] = squareBB>>8;
         if (squareBB & RANK_2){//if white is on the second rank, can move two squares
@@ -52,6 +65,17 @@ void Movement::initializePawnAttacksTables() {
     }
 }
 
+// too lazy to make the equivalent for Black.
+ull Movement::createWhitePawnMovesBB(const ull occupancies, const ull friendlyPieces, const ull enemyPieces) {
+    ull attacks = occupancies << 7 & NOT_H_FILE | occupancies << 9 & NOT_A_FILE;
+    attacks &= enemyPieces;
+    ull pushes = occupancies << 8 & ~(friendlyPieces | enemyPieces);
+    if (occupancies & RANK_2) {
+        pushes |= pushes << 8 & ~(friendlyPieces | enemyPieces) & RANK_4; // this should work I think
+    }
+    return pushes | attacks;
+}
+
 void Movement::initializeKnightAttacksTable() {
     ull temp;
     for (int square = 0; square < 64; square++) {//I'm sorry about this
@@ -60,6 +84,12 @@ void Movement::initializeKnightAttacksTable() {
         temp |= ((squareBB<<17|squareBB>>15)&NOT_A_FILE)|((squareBB<<15|squareBB>>17)&NOT_H_FILE);
         knightAttacksTable[square] = temp;
     }
+}
+
+ull Movement::createKnightAttacksBB(const ull squareBB) {
+    ull ret = ((squareBB<<6|squareBB>>10)&NOT_GH_FILE)|((squareBB<<10|squareBB>>6)&NOT_AB_FILE);
+    ret |= ((squareBB<<17|squareBB>>15)&NOT_A_FILE)|((squareBB<<15|squareBB>>17)&NOT_H_FILE);
+    return ret;
 }
 
 void Movement::initializeBishopTargetsTable() {
@@ -92,6 +122,11 @@ void Movement::initializeKingAttacksTable() {
             kingAttacksTable[square] &= ~H_FILE;
         }
     }
+}
+
+ull Movement::createKingAttacksBB(const ull squareBB) {
+    return ((squareBB<<1|squareBB<<9|squareBB>>7) & NOT_A_FILE)|squareBB<<8
+            |((squareBB>>1|squareBB>>9|squareBB<<7) & NOT_H_FILE)|squareBB>>8;
 }
 
 void Movement::initializeMagicDatabases() {
@@ -205,25 +240,25 @@ ull Movement::generateBishopAttacks(int square, ull allPieces) {
     ull squareBB = Utilities::toBitboard(square);
     ull squareAdder = squareBB;
     ull attacksBB = 0;
-    while (!(squareAdder & H_FILE) && !(squareAdder & RANK_8) && !(squareAdder & allPieces)) {//up and to the right
+    while (!(squareAdder & (H_FILE | RANK_8 | allPieces))) {//down and to the right
         squareAdder <<= 9;
         attacksBB |= squareAdder;
     }
     squareAdder = squareBB;
 
-    while (!(squareAdder & A_FILE) && !(squareAdder & RANK_8) && !(squareAdder & allPieces)) {//up and to the left
+    while (!(squareAdder & (A_FILE | RANK_8 | allPieces))) {//down and to the right
         squareAdder <<= 7;
         attacksBB |= squareAdder;
     }
     squareAdder = squareBB;
 
-    while (!(squareAdder & A_FILE) && !(squareAdder & RANK_1) && !(squareAdder & allPieces)) {//down and to the left
+    while (!(squareAdder & (A_FILE | RANK_1 | allPieces))) {//down and to the right
         squareAdder >>= 9;
         attacksBB |= squareAdder;
     }
     squareAdder = squareBB;
 
-    while (!(squareAdder & H_FILE) && !(squareAdder & RANK_1) && !(squareAdder & allPieces)) {//down and to the right
+    while (!(squareAdder & (H_FILE | RANK_1 | allPieces))) {//down and to the right
         squareAdder >>= 7;
         attacksBB |= squareAdder;
     }
@@ -237,25 +272,26 @@ ull Movement::generateRookAttacks(int square, ull allPieces) {
     ull squareAdder = squareBB;
     ull attacksBB = 0;
 
-    while (!(squareAdder & H_FILE & emptySquares)) {//right
+    while (!(squareAdder & (H_FILE | allPieces))) {//right
         squareAdder <<= 1;
         attacksBB |= squareAdder;
     }
     squareAdder = squareBB;
-    while (!(squareAdder & RANK_8 & emptySquares)) {//up
+    while (!(squareAdder & (RANK_8 | allPieces))) {//up
         squareAdder <<= 8;
         attacksBB |= squareAdder;
     }
     squareAdder = squareBB;
-    while (!(squareAdder & A_FILE & emptySquares)) {//left
+    while (!(squareAdder & (A_FILE | allPieces))) {//left
         squareAdder >>= 1;
         attacksBB |= squareAdder;
     }
     squareAdder = squareBB;
-    while (!(squareAdder & RANK_1 & emptySquares)) {//down
+    while (!(squareAdder & (RANK_1 | allPieces))) {//down
         squareAdder >>= 8;
         attacksBB |= squareAdder;
     }
 
     return attacksBB;
 }
+

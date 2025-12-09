@@ -1,4 +1,5 @@
-C:/Users/jwhal/CLionProjects/Johns_Cpp_Chess_AI/cmake-build-debug/CMakeFiles/Johns_Cpp_Chess_AI.dir
-C:/Users/jwhal/CLionProjects/Johns_Cpp_Chess_AI/cmake-build-debug/CMakeFiles/unittests.dir
-C:/Users/jwhal/CLionProjects/Johns_Cpp_Chess_AI/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/jwhal/CLionProjects/Johns_Cpp_Chess_AI/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/mnt/c/Users/jwhal/Projects/CppProjects/JohnsCppChessEngine/cmake-build-debug/CMakeFiles/Johns_Cpp_Chess_AI.dir
+/mnt/c/Users/jwhal/Projects/CppProjects/JohnsCppChessEngine/cmake-build-debug/CMakeFiles/unittests.dir
+/mnt/c/Users/jwhal/Projects/CppProjects/JohnsCppChessEngine/cmake-build-debug/CMakeFiles/miniproject.dir
+/mnt/c/Users/jwhal/Projects/CppProjects/JohnsCppChessEngine/cmake-build-debug/CMakeFiles/edit_cache.dir
+/mnt/c/Users/jwhal/Projects/CppProjects/JohnsCppChessEngine/cmake-build-debug/CMakeFiles/rebuild_cache.dir

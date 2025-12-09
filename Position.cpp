@@ -3,6 +3,8 @@
 //
 
 #include "Position.h"
+
+#include <iostream>
 #include <string>
 #include <vector>
 #include "Utilities.h"
@@ -13,7 +15,7 @@ using namespace std;
 using namespace Pieces;
 using namespace ChessConstants;
 //remember to initialize legal moves here too
-Position::Position(string fen) : chessBoard{0}, pieceBitboards{0}, castlingRights{false} {
+Position::Position(string fen) : pieceBitboards{0}, chessBoard{0}, castlingRights{false} {
     int firstSpaceIndex = (int) fen.find(' ');
     int stringTicker = 0;
     char next;
@@ -58,6 +60,48 @@ Position::Position(string fen) : chessBoard{0}, pieceBitboards{0}, castlingRight
     zobristKey = Utilities::makeZobristKey(chessBoard, whiteToMove, castlingRights, enPassantTargetSquare);
     calculatePrecalculatedData();//initializes gameState, not legal moves
     gameState = 0;
+}
+
+void Position::printPieceArray() {
+    for (int row = 7; row >=0; row--) {
+        for (int col = 0; col<8; col++) {
+            const int square = row * 8 + col;
+            std::cout << pieceChars[chessBoard[square]];
+            if (col != 7) {
+                std::cout << '|';
+            }
+        }
+        std::cout << std::endl;
+    }
+}
+
+void Position::printAllBitboards() {
+    for (int color = 0; color <= 8; color+=8) {
+        for (int piece = 1; piece <= 6; piece++) {
+            ull pieceBB = pieceBitboards[color | piece];
+            std::cout << "\nBitboard for: " << pieceNames[color | piece] << std::endl;
+            Utilities::printBitboard(pieceBB);
+            std::cout << std::endl;
+        }
+    }
+}
+
+void Position::printPos() {
+    std::cout << "\n\n\n----------Position Information-----------\n" <<
+        "Zobrist key: " << zobristKey << "\n" <<
+        "Game State: " << gameState << "\n" <<
+        "Ply Number: " << plyNumber << "\n" <<
+        "Halfmove clock: " << halfmoveClock << "\n" <<
+        "Player to move: " << (whiteToMove ? 'w' : 'b') << "\n" <<
+        "Castling rights: " << castlingRights << "\n" <<
+        "En passant target square: " << enPassantTargetSquare << "\n" <<
+        "\nPIECE ARRAY'S POSITION:\n";
+
+    printPieceArray();
+
+    std::cout << "\nBITBOARDS:\n";
+
+    printAllBitboards();
 }
 
 void Position::makeMove() {

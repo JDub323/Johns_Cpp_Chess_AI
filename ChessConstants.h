@@ -5,7 +5,6 @@
 #ifndef JOHNS_CPP_CHESS_AI_CHESSCONSTANTS_H
 #define JOHNS_CPP_CHESS_AI_CHESSCONSTANTS_H
 
-#endif //JOHNS_CPP_CHESS_AI_CHESSCONSTANTS_H
 using ull = unsigned long long;
 
 namespace ChessConstants {
@@ -163,3 +162,5 @@ namespace ChessConstants {
 
     static inline const ull CASTLING_TARGET_SQUARES [4] = {g1,c1,g8,c8};
 }
+
+#endif //JOHNS_CPP_CHESS_AI_CHESSCONSTANTS_H

@@ -4,8 +4,13 @@
 #include <vector>
 #include <sstream>
 #include "Utilities.h"
+
+#include <cstdint>
+
 #include "Pieces.h"
-#include <intrin.h>
+// #include <intrin.h>
+#include <iostream>
+
 #include "Zobrists.h"
 #include "ChessConstants.h"
 using namespace std;
@@ -48,7 +53,8 @@ unsigned short Utilities::getPiece(char next) {
             break;
         case 'k' : ret = BLACK | KING;
             break;
-        default:;
+        default:
+            ret = -1; // incorrect value given
     }
 
     return ret;
@@ -103,6 +109,27 @@ string Utilities::getSquare(short square) {
     return {static_cast<char>(fileChar), static_cast<char>(rankChar), '\0'};
 }
 
+void Utilities::printBitboard(const ull bitboard) {
+    for (int row = 7; row >=0; row--) {
+        for (int col = 0; col<8; col++) {
+            const int square = row * 8 + col;
+            const ull squareBB = toBitboard(square);
+
+            if (squareBB & bitboard) {
+                std::cout << 'X';
+            }
+            else {
+                std::cout << ' ';
+            }
+
+            if (col != 7) {
+                std::cout << '|';
+            }
+        }
+        std::cout << std::endl;
+    }
+}
+
 unsigned long long Utilities::makeZobristKey
 (const unsigned short chessboard [], const bool whiteToMove, const bool castlingRights [], const unsigned long long enPassantTargetSquare) {
     unsigned long long ret = 0;
@@ -143,4 +170,8 @@ unsigned inline long long Utilities::getPieceSquareZobrist(int piece, int square
     return pieceOnSquareRandom[piece][square];
 }
 
-
+int Utilities::pop_lsb(uint64_t &bb) {
+    int index = __builtin_ctzll(bb);
+    bb &= bb - 1;
+    return index;
+}

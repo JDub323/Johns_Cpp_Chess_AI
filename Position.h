@@ -15,7 +15,7 @@ private:
         unsigned char capturedPiece;
         unsigned char moveType;
     };
-    unsigned long pieceBitboards [15];
+    unsigned long long pieceBitboards [15];
     unsigned short chessBoard [64];
     bool castlingRights [4];
     unsigned short halfmoveClock;
@@ -28,6 +28,12 @@ private:
 
 public:
     explicit Position(std::string fen);
+
+    void printPieceArray();
+    void printAllBitboards();
+
+    void printPos();
+
     void makeMove();
     void unmakeMove();
     void generateMoves();
