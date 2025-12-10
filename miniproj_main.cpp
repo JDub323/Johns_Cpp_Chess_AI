@@ -9,7 +9,9 @@
 #include <chrono>
 #include <utility>
 #include <algorithm>
+#include <unistd.h>
 #include <unordered_set>
+#include <oneapi/tbb/detail/_task.h>
 
 #include "Movement.h"
 #include "Pieces.h"
@@ -72,28 +74,39 @@ void getPiecesToPlace(ull &friendlyBB, ull &enemyBB) {
     enemyBB = 0l;
 
     while (true) {
-        cout << "Give a piece to place in the format <f/e> <square> (without angle brackets), or q to quit\n";
-        cout << "  for friendly pieces: f\n";
-        cout << "  for enemy pieces: e\n";
-        cout << "  for the square \"index\", see the note above\n\n";
+        cout << "Give a piece (f/e) and square, or q to quit\n";
+
         cin >> piece;
-        if (piece == 'q') break; // only break condition in this loop
+        if (!cin) {                      // If reading piece failed
+            cin.clear();                 // clear failbit
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            continue;
+        }
+
+        if (piece == 'q') break;
+        if (piece != 'f' && piece != 'e') {
+            cout << "invalid friend status :(\n";
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            continue;
+        }
 
         cin >> square;
+        if (!cin) {                      // If reading square failed
+            cout << "invalid square input\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            continue;
+        }
+
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
         if (square < 0 || square > 63) {
             cout << "invalid square. please try again\n";
             continue;
         }
 
-        if (piece == 'f') {
-            friendlyBB |= Utilities::toBitboard(square);
-        }
-        if (piece == 'e') {
-            enemyBB |= Utilities::toBitboard(square);
-        }
-        else {
-            cout << "invalid friend status :(\n please try again\n";
-        }
+        if (piece == 'f') friendlyBB |= Utilities::toBitboard(square);
+        else if (piece == 'e') enemyBB |= Utilities::toBitboard(square);
     }
 
     if ((friendlyBB & enemyBB) != 0) {
@@ -107,7 +120,7 @@ void printQuadrupleBB(const ull piece, const char pieceType, const ull friendlyB
         for (int col = 0; col<8; col++) {
             const ull squareBB = Utilities::toBitboard(row*8+col);
             if (piece & squareBB) {
-                std::cout << pieceType;
+            std::cout << pieceType;
             }
             else if (attackingBB & enemyBB & squareBB) {
                 std::cout << 'X';
@@ -205,7 +218,7 @@ int DFS(const char piece, const ull fromSquareBB, const ull toSquareBB, const ul
     // Check timeout periodically
     const auto now = std::chrono::steady_clock::now();
     const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - startTime).count();
-    if (constexpr int TIMEOUT_MS = 1000; elapsed > TIMEOUT_MS) return -1;
+    if (constexpr int TIMEOUT_MS = 10000; elapsed > TIMEOUT_MS) return -1;
 
 
     uint64_t moves = Movement::getPieceMovement(piece, __builtin_ctzll(fromSquareBB), friendlyPieces, enemyPieces);
@@ -448,7 +461,65 @@ void promptUser() {
     }
 }
 
-int main() {
+void runTests(const int waitTime) {
+    cout << "first I will show all the ways a piece can move on each square, printing out the bitboard, and then\n"
+    << "I will test the time it takes for each piece to get from some arbitrary square to another, using different\n"
+    << "searching algorithms. Read the README before running this, as there are some good reasons DFS and SPS may fail.\n\n";
+    sleep(waitTime);
+    cout << "running movement tests with the following friendly and enemy bitboards:\n";
+    ull friendlyBB = 0;
+    ull enemyBB = 0;
+
+    for (int j = 0; j < 11; j++) { // say there are 11 friendly pieces. arbitrary.
+        friendlyBB |= Utilities::toBitboard(rand() & 63); // bitwise and-ing with 63 is same as taking mod 64
+    }
+    for (int j = 0; j < 13; j++) { // say there are 13 enemy pieces. arbitrary.
+        enemyBB |= Utilities::toBitboard(rand() & 63); // bitwise and-ing with 63 is same as taking mod 64
+    }
+    cout << "friendlyBB = \n";
+    Utilities::printBitboard(friendlyBB);
+    cout << "enemyBB = \n";
+    Utilities::printBitboard(enemyBB);
+    sleep(waitTime);
+
+    for (unsigned short piece = PAWN; piece <= KING; piece++) {
+        for (int square = 0; square < 64; square++) {
+            const char pieceType = Utilities::getPiece(piece);
+            if ((square & (enemyBB | friendlyBB)) != 0) {
+                cout << "skipping square " << square << " since it is occupied\n";
+                continue;
+            }
+            const ull attacks = Movement::getPieceMovement(piece, square, friendlyBB, enemyBB);
+            printQuadrupleBB(1l << square, pieceType, friendlyBB, enemyBB, attacks);
+            cout << "^^Square " << square << "^^\n\n";
+        }
+        sleep(waitTime);
+    }
+    sleep(waitTime);
+
+    cout << "running timing tests:\n";
+    testTime(PAWN, 8, 32, 5);
+    cout << "Pawn Tests^\n";
+    sleep(waitTime);
+
+    testTime(KNIGHT, 5, 40, 10);
+    cout << "Knight Tests^\n";
+    sleep(waitTime);
+
+    testTime(BISHOP, 1, 62, 10); // technically, there can be less than 10 blockers
+    cout << "Bishop Tests^\n";
+    sleep(waitTime);
+
+    testTime(ROOK, 1, 62, 10); // technically, there can be less than n blockers
+    cout << "Rook Tests^\n";
+    sleep(waitTime);
+
+    testTime(QUEEN, 1, 62, 20); // technically, there can be less than n blockers
+    cout << "Queen Tests^\n";
+    sleep(waitTime);
+}
+
+int main(int argc, char** argv) {
     // for this project, I will make a cli-calculator which will calculate one of:
     // 1: the possible attacking squares for a piece, given the current pieces on the board
     // 2: the number of moves it would take to get from square i to square j for some piece, with friendly or enemy pieces on the board
@@ -459,10 +530,14 @@ int main() {
     Movement::initializePieceMovement();
     // srand(42);  // set seed so I am consistent in between attempts. ok this actually isn't working??
 
-    //promptUser();
-    testTime(ROOK, 1, 62, 10); // technically, there can be less than 10 blockers
-
-
+    if (argc != 2) {
+        cout << "need one arg: 0 for interactive demo of searching, 1 for unittests on piece movement and searches";
+        exit(1);
+    }
+    if (argv[1][0] - '0' == 0) promptUser();
+    else {
+        runTests(1);
+    }
 
     return 0;
 }
