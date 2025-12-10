@@ -53,12 +53,12 @@ temp &= emptySquares; // make sure the rook doesn't pass through pieces (doesn't
 
 But it is impossible in this case to know how far you need to go before stopping due to a blocker, since although the bitmask will disallow the rook from capturing the piece it sees, it will still be able to pass right through it!
 
-It seems like the only solution is to loop over each square, but that is painfully slow and inelegant. Thus, people discovered FANCY MAGIC BITBOARDS.
+It seems like the only solution is to loop over each square, but that is painfully slow and inelegant. Thus, Pradu Kannan proposed FANCY MAGIC BITBOARDS, and it became standard.
 
 **The idea:**  
 Create a database for the sliding pieces. Consider the square b2 for rooks. Make an array for that square which, after some magic, will let a bitboard of potential blockers give an index for the correct attacking bitboard (a `uint_64`). How do you get a bitboard of potential blockers? You get all the squares the rook could attack if the board was empty, and remove the attacking squares which don't have any attacking squares behind them. That is, if the rook can't see anything behind that square (an edge), then there can't be a blocker there. You bitwise `&` that bitboard with the occupancy bitboard (a bitboard with a `1` where there is any piece, a `0` otherwise), so that you get a bitboard of all the pieces that could block the rook on b2. That is, you get A NUMBER.
 
-The hashing algorithm is as follows: you multiply that bitboard, which IS A NUMBER, by another "magic number" with the property that "it makes a hash table without collisions" and then right-shift by the most you can to make the table still give the right outputs (this will vary based on the square). The magic number is found by trial and error. You just randomly generate them until one works.
+The hashing algorithm is as follows: you multiply that bitboard, which IS A NUMBER, by another "magic number" with the property that "it makes a perfect hash" and then right-shift by the most you can to make the table still give the right outputs (this will vary based on the square and piece). The magic number is found by trial and error. You just randomly generate them until one works. I saved the ones I generated so I don't have to re-generate them every time, and some of the magics (the ones around the rook corners) are too hard to find just with trial and error, and very important to find, due to the size of these lookup tables. Chessprogrammingwiki says: Recent table sizes were about 38 KiB for the bishop attacks, but still about 800 KiB for rook attacks. This is mostly due to expensive corner square lookup tables, and two of the four corners have very optimal, halved magics with many constructive collisions. But that is not too important.
 
 Do the same process for each square on the board, for rooks and for bishops. For queens, you can just `|` the outputs for rooks and for bishops themselves.
 
