@@ -18,6 +18,8 @@ class Utilities {
 public:
     static vector<string> split(string& string, char delimiter);
 
+    static void printTripleBitboard(ull piece, ull blockers, ull attackingSquares);
+
     static unsigned short getPiece(char next);
 
     static char getPiece(unsigned short piece);

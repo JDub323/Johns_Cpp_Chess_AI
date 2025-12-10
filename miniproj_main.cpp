@@ -10,11 +10,11 @@
 #include <utility>
 #include <algorithm>
 #include <unistd.h>
-#include <unordered_set>
-#include <oneapi/tbb/detail/_task.h>
+// #include <unordered_set>
 
 #include "Movement.h"
 #include "Pieces.h"
+#include "unittests.h"
 #include "Utilities.h"
 
 using namespace Pieces;
@@ -36,14 +36,14 @@ void getPieceType(char& piece) {
             cout << "Invalid piece. Please try again\n";
             continue;
         }
-        piece /= 8; // take off the "black" flag if the user put a capital letter. for all these functions,
+        piece %= 8; // take off the "black" flag if the user put a capital letter. for all these functions,
         // friendly will be white, and enemy will be black
 
         break;
     }
 }
 
-void getSquare(char& square) {
+void getSquare(short& square) {
     cout << "I enforce the standard chess representation of the board on the user so bitboards are more natural when grading my code.\n"
             "This means squares are counted little-endian, column-first. a1->0, b1->1, ..., h8->63\n" <<
                 "so if you wanted c8, row = 2, col=7, and square_idx = row * 8 + col = 23\n\n" <<
@@ -356,8 +356,8 @@ void testTime(char piece, char fromSquare, char toSquare, int blockerCount) {
         printf("BFS- %d\n", resultBFS[i]);
         printf("DFS- %d\n", resultDFS[i]);
         printf("SPS- %d\n", resultSPS[i]);
-        printf("Blockers:\n");
-        Utilities::printBitboard(blockerVec[i]);
+        //printf("Blockers:\n");
+        //Utilities::printBitboard(blockerVec[i]);
         printf("\n");
     }
 
@@ -393,7 +393,7 @@ void promptUser() {
 
     if (cmd == 1) {
         char piece;
-        char square;
+        short square;
         ull friendlyBB;
         ull enemyBB;
         cout << "\nFinding the attacking squares for a piece.\n";
@@ -405,15 +405,15 @@ void promptUser() {
         getPiecesToPlace(friendlyBB, enemyBB);
 
         const ull attacks = Movement::getPieceMovement(piece, square, friendlyBB, enemyBB);
-        printQuadrupleBB(1l << square, piece, friendlyBB, enemyBB, attacks);
+        printQuadrupleBB(1l << square, Utilities::getPiece(static_cast<unsigned short>(piece)), friendlyBB, enemyBB, attacks);
     }
     else if (cmd == 2) {
         char piece;
-        char fromSquare;
-        char toSquare;
+        short fromSquare;
+        short toSquare;
         ull friendlyBB;
         ull enemyBB;
-        cout << "\nFinding the attacking squares for a piece.\n";
+        cout << "\nFinding the number of moves to go from square i to j.\n";
         getPieceType(piece);
         cout << "\n\n";
         cout << "Give a square to put this piece on:\n";
@@ -424,12 +424,12 @@ void promptUser() {
         cout << "\n\n";
         getPiecesToPlace(friendlyBB, enemyBB);
 
-        int moveCount = BFS(piece, Utilities::toBitboard(fromSquare), 1l << Utilities::toBitboard(toSquare), friendlyBB, enemyBB);
+        int moveCount = 1 + BFS(piece, Utilities::toBitboard(fromSquare), 1l << Utilities::toBitboard(toSquare), friendlyBB, enemyBB);
 
-        cout << "\nMoves for " << Utilities::getPiece(piece) << " to get from " << Utilities::getSquare(fromSquare) <<
-            " to " << Utilities::getSquare(toSquare) << ": " << moveCount;
+        cout << "\nMoves for " << Utilities::getPiece(static_cast<unsigned short>(piece)) << " to get from " << Utilities::getSquare(fromSquare) <<
+            " to " << Utilities::getSquare(toSquare) << ": " << moveCount << endl;
         if (moveCount == -1) {
-            cout << "This means " << Utilities::getPiece(piece) << " cannot reach " << Utilities::getSquare(toSquare) << "\nn";
+            cout << "This means " << Utilities::getPiece(static_cast<unsigned short>(piece)) << " cannot reach " << Utilities::getSquare(toSquare) << "\nn";
         }
     }
     else if (cmd == 3) {
@@ -439,10 +439,10 @@ void promptUser() {
         // number of times. Print out the speed results with super parallel search, breadth-first, and depth-first,
         // and assert that they all always get the same numbers with the same set of blockers.
         char piece;
-        char fromSquare;
-        char toSquare;
+        short fromSquare;
+        short toSquare;
         int blockerCount;
-        cout << "\nFinding the attacking squares for a piece.\n";
+        cout << "\nTesting the time to get from i to j, for each search algorithm.\n";
         getPieceType(piece);
         cout << "\n\n";
         cout << "Give a square to put this piece on:\n";
@@ -465,37 +465,55 @@ void runTests(const int waitTime) {
     cout << "first I will show all the ways a piece can move on each square, printing out the bitboard, and then\n"
     << "I will test the time it takes for each piece to get from some arbitrary square to another, using different\n"
     << "searching algorithms. Read the README before running this, as there are some good reasons DFS and SPS may fail.\n\n";
+    cout << "I wait for 5 seconds after completion to make sure the terminal is not flooded, for visual purposes in this video\n\n";
     sleep(waitTime);
     cout << "running movement tests with the following friendly and enemy bitboards:\n";
-    ull friendlyBB = 0;
-    ull enemyBB = 0;
+    // ull friendlyBB = 0;
+    // ull enemyBB = 0;
 
-    for (int j = 0; j < 11; j++) { // say there are 11 friendly pieces. arbitrary.
-        friendlyBB |= Utilities::toBitboard(rand() & 63); // bitwise and-ing with 63 is same as taking mod 64
-    }
-    for (int j = 0; j < 13; j++) { // say there are 13 enemy pieces. arbitrary.
-        enemyBB |= Utilities::toBitboard(rand() & 63); // bitwise and-ing with 63 is same as taking mod 64
-    }
-    cout << "friendlyBB = \n";
-    Utilities::printBitboard(friendlyBB);
-    cout << "enemyBB = \n";
-    Utilities::printBitboard(enemyBB);
-    sleep(waitTime);
-
-    for (unsigned short piece = PAWN; piece <= KING; piece++) {
-        for (int square = 0; square < 64; square++) {
-            const char pieceType = Utilities::getPiece(piece);
-            if ((square & (enemyBB | friendlyBB)) != 0) {
-                cout << "skipping square " << square << " since it is occupied\n";
+    cout << "Simple piece movement. constant blocker arrangement\n";
+    for (int square = 0; square < 64; square++) {
+        for (unsigned char piece = PAWN; piece <= KING; piece++) {
+            constexpr ull blockers = 0x0000FF00000l;
+            // do not print out invalid configs (blockers can't be on top of the square you are on)
+            if ((blockers & Utilities::toBitboard(square)) != 0) {
                 continue;
             }
-            const ull attacks = Movement::getPieceMovement(piece, square, friendlyBB, enemyBB);
-            printQuadrupleBB(1l << square, pieceType, friendlyBB, enemyBB, attacks);
-            cout << "^^Square " << square << "^^\n\n";
+            const ull attackingSquares = Movement::getPieceMovement(piece, square, blockers, 0l);
+            Utilities::printTripleBitboard(Utilities::toBitboard(square), blockers, attackingSquares);
+            std::cout << "------------------------------------------------------------\n";
         }
-        sleep(waitTime);
+        std::cout << "--------Square "+std::to_string(square)+"--------" << std::endl;
     }
     sleep(waitTime);
+    sleep(waitTime);
+
+    // for (int j = 0; j < 11; j++) { // say there are 11 friendly pieces. arbitrary.
+    //     friendlyBB |= Utilities::toBitboard(rand() & 63); // bitwise and-ing with 63 is same as taking mod 64
+    // }
+    // for (int j = 0; j < 13; j++) { // say there are 13 enemy pieces. arbitrary.
+    //     enemyBB |= Utilities::toBitboard(rand() & 63); // bitwise and-ing with 63 is same as taking mod 64
+    // }
+    // cout << "friendlyBB = \n";
+    // Utilities::printBitboard(friendlyBB);
+    // cout << "enemyBB = \n";
+    // Utilities::printBitboard(enemyBB);
+    // sleep(waitTime);
+    //
+    // for (unsigned short piece = PAWN; piece <= KING; piece++) {
+    //     for (int square = 0; square < 64; square++) {
+    //         const char pieceType = Utilities::getPiece(piece);
+    //         if ((square & (enemyBB | friendlyBB)) != 0) {
+    //             cout << "skipping square " << square << " since it is occupied\n";
+    //             continue;
+    //         }
+    //         const ull attacks = Movement::getPieceMovement(piece, square, friendlyBB, enemyBB);
+    //         printQuadrupleBB(1l << square, pieceType, friendlyBB, enemyBB, attacks);
+    //         cout << "^^Square " << square << "^^\n\n";
+    //     }
+    //     sleep(waitTime);
+    // }
+    // sleep(waitTime);
 
     cout << "running timing tests:\n";
     testTime(PAWN, 8, 32, 5);
@@ -536,8 +554,9 @@ int main(int argc, char** argv) {
     }
     if (argv[1][0] - '0' == 0) promptUser();
     else {
-        runTests(1);
+        runTests(5);
     }
+    //promptUser();
 
     return 0;
 }

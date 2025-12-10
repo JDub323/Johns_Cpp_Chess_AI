@@ -26,6 +26,30 @@ vector <string> Utilities::split(string& str, char delimiter) {
     return ret;
 }
 
+void Utilities::printTripleBitboard(ull piece, ull blockers, ull attackingSquares) {
+    for (int row = 7; row >=0; row--) {
+        for (int col = 0; col<8; col++) {
+            ull squareBB = Utilities::toBitboard(row*8+col);
+            if (piece & squareBB) {
+                std::cout << 'X';
+            }
+            else if (blockers & squareBB) {
+                std::cout << 'B';
+            }
+            else if (attackingSquares & squareBB) {
+                std::cout << 'O';
+            }
+            else {
+                std::cout << ' ';
+            }
+            if (col != 7) {
+                std::cout << '|';
+            }
+        }
+        std::cout << std::endl;
+    }
+}
+
 unsigned short Utilities::getPiece(char next) {
     unsigned short ret;
     switch (next) {

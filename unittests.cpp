@@ -11,7 +11,7 @@
 
 int main() {
     Movement::initializePieceMovement();
-    // unittests::printAllMovement();
+    unittests::printAllMovement();
     auto pos = Position("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     //pos.printPos();
     return 0;
