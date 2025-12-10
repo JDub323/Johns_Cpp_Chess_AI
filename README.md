@@ -1,11 +1,17 @@
-
-The two data structures concepts used:
+# Data Structures Project Submission
+The two main data structures concepts used:
 - Hash table
 - Tree traversal
 
 The complexity comes from the underlying bit manipulations of bitboards for the program. I will start by explaining what a bitboard is, then go into the hash table "fancy magic bitboards" algorithm, then talk about the functions I made, and then finally go into what the output of `make tests` and `make demo` does.
 
-(Include links to Chess Programming Wiki below.)  
+__THE ONLY FUNCTIONS IN THIS REPO WHICH I USE FOR THE MINI FINAL PROJECT ARE:
+        'miniproj_main.cpp'
+        'Utilities.cpp'
+        'Movement.cpp'__
+
+The rest are all skeletons of what was going to be a c++ chess engine. Do not be fooled by the "AI" in the title of this repo, there is no machine learning involved.
+ 
 For more information on bitboards, see: https://www.chessprogramming.org/Bitboards  
 For more information on fancy magic bitboards, see: https://www.chessprogramming.org/Magic_Bitboards
 
